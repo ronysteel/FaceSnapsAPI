@@ -19,21 +19,23 @@ describe Authenticable do
     end
   end
 
-  describe "#authenticate_with_token" do
-  	before do
-  		@user = FactoryGirl.create :user
-  		authentication.stub(:current_user).and_return(nil)
-  		response.stub(:response_code).and_return(401)
-  		response.stub(:body).and_return({"errors" => "Not authenticated"}.to_json)
-  		authentication.stub(:response).and_return(response)
-  	end
+  describe "#user_signed_in?" do
+    context "when there is a user on 'session'" do
+      before do
+        @user = FactoryGirl.create :user
+        authentication.stub(:current_user).and_return(@user)
+      end
 
-  	it "renders a json error message" do
-  		expect(json_response[:errors]).to eql "Not authenticated"
-  	end
+      it { should be_user_signed_in }
+    end
 
-  	it { should respond_with 401 }
+    context "when there is no user on 'session'" do
+      before do
+        @user = FactoryGirl.create :user
+        authentication.stub(:current_user).and_return(nil)
+      end
 
+      it { should_not be_user_signed_in }
+    end
   end
-
 end
